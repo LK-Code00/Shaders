@@ -1,149 +1,174 @@
--- =============================================
--- MOBILE GRAPHICS OPTIMIZER PRO + NETWORK BOOST
--- Enhanced 2026 Edition - Graphics + Low Ping
--- =============================================
-
-local Lighting = game:GetService("Lighting")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local UserInputService = game:GetService("UserInputService")
-
-Lighting.Technology = Enum.Technology.Future
+-- 📱 MOBILE FPS UNLOCK + INTERACTIVE TEMPLATE SELECTOR (Rayfield UI)
+-- Touch-optimized for Delta, Trigon, Synapse on Android
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local Window = Rayfield:CreateWindow({
-   Name = "Mobile Graphics Optimizer Pro",
-   LoadingTitle = "Carregando Perfis Avançados...",
-   LoadingSubtitle = "Máxima Fidelidade + Low Ping • 2026",
-   ConfigurationSaving = { Enabled = true, Folder = "GraphicsOptimizerPro" },
-   KeySystem = false
-})
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
 
--- =============================================
--- FAST FLAGS - PING & PERFORMANCE (Integrado)
--- =============================================
-local function applyFastFlags()
-    local flags = {
-        -- === REDE / PING / LATÊNCIA ===
-        ["DFIntConnectionMTUSize"] = "900",
-        ["DFIntRakNetResendBufferArrayLength"] = "128",
-        ["DFIntRakNetResendRttMultiple"] = "1",
-        ["DFIntRaknetBandwidthPingSendEveryXSeconds"] = "1",
-        ["DFIntNetworkLatencyTolerance"] = "0",
-        ["DFIntNetworkPrediction"] = "0",
-        ["FFlagReducePacketLoss"] = "True",
-        ["FFlagEnableFastGameJoin"] = "True",
-        ["FFlagOptimizeNetwork"] = "True",
-        ["FFlagOptimizeNetworkRouting"] = "True",
-        ["FFlagOptimizeNetworkTransport"] = "True",
-        ["FFlagOptimizeServerTickRate"] = "True",
+local player = Players.LocalPlayer
 
-        -- === REDUÇÃO DE INPUT LAG ===
-        ["DFIntMaxFrameBufferSize"] = "4",
-        ["FIntSmoothMouseSpringFrequencyTenths"] = "100",
-
-        -- === FPS & PERFORMANCE ===
-        ["DFIntTaskSchedulerTargetFps"] = "240",           -- Alto para desbloqueio externo
-        ["DFIntDebugFRMQualityLevelOverride"] = "1",
-        ["DFIntTextureQualityOverride"] = "0",
-
-        -- === DESATIVAR TELEMETRIA (melhora estabilidade) ===
-        ["FFlagDebugDisableTelemetryV2Event"] = "True",
-        ["FFlagDebugDisableTelemetryV2Stat"] = "True",
-        ["FFlagDebugDisableTelemetryEphemeralCounter"] = "True",
-        ["FFlagDebugDisableTelemetryEphemeralStat"] = "True",
-    }
-
-    if setfflag then
-        print("✅ Aplicando Fast Flags de Low Ping + Performance...")
-        for k, v in pairs(flags) do
-            setfflag(k, v)
-        end
-        Rayfield:Notify({
-            Title = "Fast Flags Aplicadas",
-            Content = "Otimizações de rede e FPS ativadas!\nReinicie o Roblox para efeito completo.",
-            Duration = 5,
-            Image = 4483362458,
-        })
+-- Device Detection
+local function getDeviceInfo()
+    local screenSize = workspace.CurrentCamera.ViewportSize
+    local device = "Unknown Mobile"
+    local recommended = "MEDIUM"
+    
+    if screenSize.Y <= 960 then
+        device = "Low-End (540p)"
+        recommended = "POTATO"
+    elseif screenSize.Y <= 1280 then
+        device = "Mid-Range (720p)"
+        recommended = "MEDIUM"
     else
-        warn("❌ setfflag não disponível. Use Bloxstrap / Voidstrap / Executor com suporte.")
-        Rayfield:Notify({
-            Title = "Aviso",
-            Content = "Fast Flags requer executor com setfflag ou bootstrapper (Bloxstrap/Voidstrap).",
-            Duration = 6,
-        })
+        device = "High-End (1080p+)"
+        recommended = "MEDIUM"
     end
+    
+    return device, recommended
 end
 
--- =============================================
--- QUALITY PROFILES (mesmo do anterior, mantido aprimorado)
--- =============================================
-local QualitySettings = {
-	["Low"] = { ... },          -- (mantido igual ao anterior)
-	["Balanced"] = { ... },
-	["RTX Ultra"] = { ... }
+-- Graphics Templates
+local templates = {
+    {id = 1, name = "1️⃣ POTATO MODE", desc = "Gráficos minimalistas (120+ FPS)", quality = 1, visual = "████░", fpsTarget = "120+"},
+    {id = 2, name = "2️⃣ LOW GRAPHICS", desc = "Básico mas funcional (100+ FPS)", quality = 2, visual = "█████░", fpsTarget = "100+"},
+    {id = 3, name = "3️⃣ MEDIUM ⭐", desc = "Bom balanço (RECOMENDADO)", quality = 4, visual = "███████░", fpsTarget = "60-90"},
+    {id = 4, name = "4️⃣ HIGH", desc = "Qualidade bonita (40-60 FPS)", quality = 7, visual = "█████████░", fpsTarget = "40-60"},
+    {id = 5, name = "5️⃣ RTX ULTRA", desc = "Máximo visual (30-60 FPS)", quality = 10, visual = "██████████", fpsTarget = "30-60"}
 }
 
--- (Cole aqui as mesmas tabelas QualitySettings e funções applyProfile / applyPostProcessing do script anterior que eu te passei)
+local currentTemplate = 3
 
-local CurrentProfile = "Balanced"
-local AutoOptimize = true
+-- Apply Template
+local function applyTemplate(id)
+    local tpl = templates[id]
+    if not tpl then return end
+    
+    currentTemplate = id
+    
+    pcall(function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel["Level0" .. tpl.quality] or Enum.QualityLevel.Level04
+        UserSettings().GameSettings.GraphicsMode = Enum.GraphicsMode.Manual
+    end)
+    
+    pcall(function()
+        Lighting.GlobalShadows = (id >= 4)
+        Lighting.Brightness = 1
+        Lighting.ClockTime = 12
+        Lighting.FogEnd = 100000
+    end)
+    
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        pcall(function()
+            if v:IsA("BasePart") then
+                v.CastShadow = false
+            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") then
+                v.Enabled = (id >= 4)
+            end
+        end)
+    end
+    
+    pcall(function()
+        setfpscap(999)
+    end)
+    
+    Rayfield:Notify({
+        Title = "✅ Template Aplicado",
+        Content = tpl.name .. "\nFPS Alvo: " .. tpl.fpsTarget,
+        Duration = 4,
+        Image = 4483362458
+    })
+end
 
--- =============================================
--- UI
--- =============================================
-local MainTab = Window:CreateTab("Graphics Optimizer", 4483362458)
-
-MainTab:CreateSection("Quality Profiles")
--- ... (Dropdown de profiles igual ao anterior)
-
-MainTab:CreateSection("Network & Low Ping")
-
-local FlagsToggle = MainTab:CreateToggle({
-   Name = "Ativar Fast Flags (Low Ping + FPS)",
-   CurrentValue = true,
-   Callback = function(Value)
-      if Value then
-         applyFastFlags()
-      end
-   end,
+-- Create Rayfield Window
+local Window = Rayfield:CreateWindow({
+    Name = "📱 Mobile FPS Unlock",
+    LoadingTitle = "Carregando Interface Mobile...",
+    LoadingSubtitle = "Otimizado para toque",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "MobileFPSUnlock",
+        FileName = "Config"
+    },
+    Discord = {
+        Enabled = false
+    },
+    KeySystem = false
 })
+
+local MainTab = Window:CreateTab("Templates", 4483362458)
+local StatusTab = Window:CreateTab("Status", 4483362458)
+
+-- Device Info
+local device, rec = getDeviceInfo()
+MainTab:CreateSection("Dispositivo: " .. device .. " | Recomendado: " .. rec)
+
+-- Template Buttons (Large & Touch Friendly)
+for _, tpl in ipairs(templates) do
+    MainTab:CreateButton({
+        Name = tpl.name .. " - " .. tpl.desc,
+        Callback = function()
+            applyTemplate(tpl.id)
+        end
+    })
+end
 
 MainTab:CreateButton({
-   Name = "Aplicar Fast Flags Agora",
-   Callback = function()
-      applyFastFlags()
-   end,
+    Name = "🤖 AUTO SELECT (Smart)",
+    Callback = function()
+        if device:find("Low") then
+            applyTemplate(1)
+        else
+            applyTemplate(3)
+        end
+    end
 })
 
-MainTab:CreateSection("FPS Unlock")
-MainTab:CreateLabel("Para FPS acima de 60-120 use: Bloxstrap, Voidstrap ou rbxfpsunlocker + DFIntTaskSchedulerTargetFps alto.")
+-- FPS Counter (Live)
+local fpsLabel = StatusTab:CreateLabel("FPS: Calculando...")
 
--- =============================================
--- Performance Monitor (mesmo do anterior)
--- =============================================
-task.spawn(function()
-	while true do
-		task.wait(3)
-		if AutoOptimize then
-			local currentFPS = Workspace:GetRealPhysicsFPS() or 60
-			-- lógica de downgrade/upgrade de perfil...
-		end
-	end
-end)
+local fps = 0
+local frameCount = 0
+local lastTime = tick()
 
--- =============================================
--- Inicialização
--- =============================================
-applyProfile("Balanced")
-
--- Aplicar Fast Flags automaticamente se toggle estiver ligado
-task.delay(1.5, function()
-    if FlagsToggle.CurrentValue then
-        applyFastFlags()
+RunService.RenderStepped:Connect(function()
+    frameCount += 1
+    local now = tick()
+    if now - lastTime >= 1 then
+        fps = frameCount
+        frameCount = 0
+        lastTime = now
+        fpsLabel:Set("FPS: " .. fps .. " | Template Atual: " .. templates[currentTemplate].name)
     end
 end)
 
-print("🚀 Mobile Graphics Optimizer Pro + Low Ping carregado!")
+-- Quick Actions
+local ActionsTab = Window:CreateTab("Ações Rápidas", 4483362458)
+
+ActionsTab:CreateButton({
+    Name = "🔄 Reaplicar Template Atual",
+    Callback = function()
+        applyTemplate(currentTemplate)
+    end
+})
+
+ActionsTab:CreateButton({
+    Name = "✕ Fechar Interface",
+    Callback = function()
+        Rayfield:Destroy()
+    end
+})
+
+-- Initial Apply
+task.wait(0.8)
+applyTemplate(3)
+
+Rayfield:Notify({
+    Title = "🎮 Mobile FPS Unlock",
+    Content = "Interface carregada com sucesso!\nToque nos botões grandes para selecionar.",
+    Duration = 6
+})
+
+print("✅ Rayfield Mobile FPS Unlocker carregado!")
